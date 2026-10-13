@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>加勢鳥ゲーム - Deluxe Graphics</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800;900&display=swap');
+
+    body {
+      margin: 0;
+      background: #090d16;
+      color: #fff;
+      font-family: 'M PLUS Rounded 1c', 'Helvetica Neue', Arial, sans-serif;
+      text-align: center;
+      user-select: none;
+      overflow: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1 {
+      margin: 10px 0 2px 0;
+      font-size: 32px;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+    }
+
+    p.controls {
+      margin: 0 0 12px 0;
+      color: #94a3b8;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+
+    #game-container {
+      position: relative;
+      width: 800px;
+      height: 450px;
+      border: 3px solid rgba(56, 189, 248, 0.6);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 25px rgba(56, 189, 248, 0.25);
+      background: #0f172a;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #ui {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 16px;
+      font-weight: 800;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .ui-group {
+      display: flex;
+      gap: 12px;
+    }
+
+    .ui-badge {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 18px;
+      border-radius: 20px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      color: #f8fafc;
+      letter-spacing: 1px;
+    }
+
+    #message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(15, 23, 42, 0.92);
+      border: 2px solid rgba(56, 189, 248, 0.5);
+      padding: 20px 28px;
+      border-radius: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.2);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      max-width: 660px;
+      width: 88%;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+      letter-spacing: 1px;
+    }
+
+    .btn-easy {
+      background: linear-gradient(135deg, #22c55e, #166534);
+      border: 1px solid #4ade80;
+    }
+    .btn-easy:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.5);
+    }
+
+    .btn-hard {
+      background: linear-gradient(135deg, #ef4444, #991b1b);
+      border: 1px solid #f87171;
+    }
+    .btn-hard:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-retry {
+      background: linear-gradient(135deg, #3b82f6, #1e40af);
+      border: 1px solid #60a5fa;
+    }
+    .btn-retry:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
+    }
+
+    .mode-btn-group {
+      display: flex;
+      gap: 18px;
+    }
+
+    .info-container {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+    }
+
+    #ranking-box, #item-info-box {
+      flex: 1;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 10px 14px;
+      box-sizing: border-box;
+      font-size: 12px;
+      color: #e2e8f0;
+      text-align: left;
+    }
+
+    #kasedori-info-box {
+      width: 100%;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid #38bdf8;
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-sizing: border-box;
+      font-size: 13px;
+      color: #f1f5f9;
+      text-align: left;
+      line-height: 1.6;
+      display: none;
+    }
+
+    .box-title {
+      font-weight: 800;
+      color: #38bdf8;
+      margin-bottom: 6px;
+      text-align: center;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+    }
+
+    .ranking-grid {
+      display: flex;
+      justify-content: space-around;
+    }
+    .ranking-col ol {
+      margin: 4px 0 0 18px;
+      padding: 0;
+    }
+    .ranking-col h4 {
+      margin: 0;
+      color: #94a3b8;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .item-icon-canvas {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    #pause-overlay {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      font-size: 32px;
+      font-weight: 900;
+      color: #38bdf8;
+      z-index: 8;
+      backdrop-filter: blur(4px);
+      letter-spacing: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>加勢鳥ゲーム - Deluxe</h1>
+  <p class="controls">【操作】 左右キー/AD: 移動 | 上/スペース/W: ジャンプ | P/Esc: ポーズ | R: リトライ</p>
+
+  <div id="game-container">
+    <div id="ui">
+      <div class="ui-group">
+        <div id="lives-text" class="ui-badge" style="color: #ef4444;">❤️ ❤️ ❤️</div>
+        <div id="score-text" class="ui-badge">SCORE: 0</div>
+      </div>
+      <div id="status-text" class="ui-badge" style="color: #c084fc; display: none;"></div>
+    </div>
+    
+    <div id="pause-overlay">⏸ PAUSE (Pキーで再開)</div>
+
+    <div id="message">
+      <div id="message-title" style="font-size: 24px; font-weight: 900;">難易度を選んでね！</div>
+      <div id="message-desc" style="font-size: 13px; color: #cbd5e1; white-space: pre-line;">モードを選択するとゲームが始まります</div>
+      
+      <div id="title-info-group" class="info-container">
+        <div id="ranking-box">
+          <div class="box-title">🏆 ハイスコア TOP 5</div>
+          <div class="ranking-grid">
+            <div class="ranking-col">
+              <h4>🌱 イージー</h4>
+              <ol id="ranking-easy"></ol>
+            </div>
+            <div class="ranking-col">
+              <h4>🔥 ハード</h4>
+              <ol id="ranking-hard"></ol>
+            </div>
+          </div>
+        </div>
+
+        <div id="item-info-box">
+          <div class="box-title">🎁 アイテム一覧</div>
+          <div class="item-list">
+            <div class="item-row"><canvas id="icon-straw" class="item-icon-canvas" width="22" height="22"></canvas><span><b>祝い藁</b>: 得点獲得 (+10pt / +30pt)</span></div>
+            <div class="item-row"><canvas id="icon-speed" class="item-icon-canvas" width="22" height="22"></canvas><span><b>スピードUP</b>: 移動速度1.7倍</span></div>
+            <div class="item-row"><canvas id="icon-ice" class="item-icon-canvas" width="22" height="22"></canvas><span><b>無敵氷</b>: 水・火をすべて無効化</span></div>
+            <div class="item-row"><canvas id="icon-fire" class="item-icon-canvas" width="22" height="22"></canvas><span><b>お邪魔火</b>: 5秒間スピードDOWN (ハード限定)</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="kasedori-info-box">
+        <div class="box-title">💡 加勢鳥（カセ鳥）豆知識</div>
+        <div id="kasedori-text"></div>
+      </div>
+
+      <div id="mode-select-group" class="mode-btn-group">
+        <button class="btn btn-easy" onclick="startGame('easy')">🌱 イージー</button>
+        <button class="btn btn-hard" onclick="startGame('hard')">🔥 ハード</button>
+      </div>
+
+      <button id="retry-btn" class="btn btn-retry" style="display: none;" onclick="showModeSelect()">もう一度遊ぶ (R)</button>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="450"></canvas>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreText = document.getElementById('score-text');
+    const livesText = document.getElementById('lives-text');
+    const statusText = document.getElementById('status-text');
+    const message = document.getElementById('message');
+    const messageTitle = document.getElementById('message-title');
+    const messageDesc = document.getElementById('message-desc');
+    const modeSelectGroup = document.getElementById('mode-select-group');
+    const retryBtn = document.getElementById('retry-btn');
+    const pauseOverlay = document.getElementById('pause-overlay');
+    const titleInfoGroup = document.getElementById('title-info-group');
+    const kasedoriInfoBox = document.getElementById('kasedori-info-box');
+    const kasedoriText = document.getElementById('kasedori-text');
+
+    let mode = 'easy';
+    let score = 0;
+    let lives = 3;
+    const maxLives = 3;
+    let gameOver = false;
+    let gameStarted = false;
+    let isPaused = false;
+    let gameTimer = 0;
+    let hasReachedGoal = false;
+
+    let waterSpawnInterval = 500;
+    let waterBaseSpeed = 3;
+
+    // --- 加勢鳥豆知識 ---
+    const kasedoriFacts = [
+      "【山形県上山市の奇祭】「加勢鳥（カセ鳥）」は、江戸時代初期から上山市に伝わる伝統的な小正月行事だよ！",
+      "【かけ声の謎】「カッカッカーの カッカッカー！」という不思議な掛け声をあげながら、町中を練り歩くんだ！",
+      "【ケンダイとは？】加勢鳥が着ている藁（わら）でできた着物は「ケンダイ」と呼ばれるよ！円錐状で頭まですっぽり被るんだ。",
+      "【火伏せの願い】祝い水（冷水）をかけられることで、火災を防ぐ「火伏せ（ひぶせ）」の祈りが込められているよ！",
+      "【商売繁盛と五穀豊穣】加勢鳥は神様の使いとされ、町を巡ることで商売繁盛や五穀豊穣をもたらすと信じられているよ！",
+      "【祝い藁の秘密】加勢鳥から落ちた藁（わら）を髪に結ぶと、黒髪の美しい良い髪になると言われているよ！",
+      "【寒さとの戦い】極寒の2月中旬に行われ、水桶を持った町の人々から容赦なく冷水を浴びせかけられるハードな行事だよ！",
+      "【稼ぎ鳥が由来？】「加勢鳥」は、かつて「稼ぎ鳥」とも書かれ、努力が報われる縁起の良い鳥とされていたよ！",
+      "【手ぬぐいの謎】顔の隙間から見える白い手ぬぐいは、鉢巻として頭に巻かれていて気合を表しているよ！",
+      "【上山城でのクライマックス】フィナーレは上山城の広場で、大勢の人々から一斉に水を掛けられる迫力満点の行事なんだ！"
+    ];
+
+    // --- サウンド ---
+    let audioCtx = null;
+    let bgmInterval = null;
+    let bgmNoteIndex = 0;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playAIVoice() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const syllables = ["カッ", "カッ", "カーー！"];
+        const basePitch = 1.2;
+
+        syllables.forEach((syl, index) => {
+          setTimeout(() => {
+            const uttr = new SpeechSynthesisUtterance(syl);
+            uttr.lang = 'ja-JP';
+            uttr.rate = 3.5;
+            uttr.pitch = basePitch + (index * 0.3);
+            uttr.volume = 1.0;
+            window.speechSynthesis.speak(uttr);
+          }, index * 50);
+        });
+      }
+    }
+
+    function playSound(type) {
+      initAudio();
+      if (type === 'item' || type === 'bigItem') {
+        playAIVoice();
+        return;
+      }
+
+      if (!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'jump') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(250, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.12);
+        gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
+        osc.start(now); osc.stop(now + 0.12);
+      } else if (type === 'powerup') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(900, now + 0.25);
+        gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now); osc.stop(now + 0.25);
+      } else if (type === 'fire') {
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, now); osc.frequency.linearRampToValueAtTime(90, now + 0.25);
+        gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now); osc.stop(now + 0.25);
+      } else if (type === 'splash') {
+        osc.type = 'square'; osc.frequency.setValueAtTime(200, now); osc.frequency.linearRampToValueAtTime(80, now + 0.2);
+        gain.gain.setValueAtTime(0.25, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+        osc.start(now); osc.stop(now + 0.2);
+      } else if (type === 'gameover') {
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(400, now); osc.frequency.linearRampToValueAtTime(100, now + 0.6);
+        gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.6);
+        osc.start(now); osc.stop(now + 0.6);
+      }
+    }
+
+    const bgmNotes = [329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 587.33, 523.25, 440.00, 392.00, 440.00, 523.25, 440.00, 392.00, 329.63, 293.66];
+
+    function startBGM() {
+      stopBGM();
+      initAudio();
+      bgmNoteIndex = 0;
+      bgmInterval = setInterval(() => {
+        if (!gameStarted || isPaused || gameOver) return;
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const now = audioCtx.currentTime;
+        const freq = bgmNotes[bgmNoteIndex];
+        bgmNoteIndex = (bgmNoteIndex + 1) % bgmNotes.length;
+        
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      }, 240);
+    }
+
+    function stopBGM() {
+      if (bgmInterval) {
+        clearInterval(bgmInterval);
+        bgmInterval = null;
+      }
+    }
+
+    const keys = {};
+    window.addEventListener('keydown', e => {
+      initAudio();
+      if (e.code === 'KeyP' || e.code === 'Escape') { if (gameStarted && !gameOver) togglePause(); }
+      keys[e.code] = true;
+      if (e.code === 'KeyR') { if (!gameStarted) return; if (gameOver) showModeSelect(); }
+    });
+    window.addEventListener('keyup', e => keys[e.code] = false);
+
+    function togglePause() {
+      isPaused = !isPaused;
+      pauseOverlay.style.display = isPaused ? 'flex' : 'none';
+      if (!isPaused) initAudio();
+    }
+
+    const player = {
+      x: 100, y: 310, width: 48, height: 70,
+      vx: 0, vy: 0, baseSpeed: 5, speed: 5, jumpPower: -12.5, gravity: 0.6,
+      isGrounded: false, speedBoostTimer: 0, slowTimer: 0, invincibleTimer: 0, hitCooldown: 0,
+      animFrame: 0
+    };
+
+    let waters = [], straws = [], speedItems = [], iceItems = [], fireItems = [], popups = [], particles = [], snowflakes = [];
+
+    // 背景の雪を初期化
+    for(let i = 0; i < 40; i++) {
+      snowflakes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2 + 1,
+        speedY: Math.random() * 1 + 0.5,
+        speedX: Math.random() * 0.5 - 0.25
+      });
+    }
+
+    const clouds = [
+      { x: 50, y: 50, scale: 0.8, speed: 0.2 },
+      { x: 300, y: 80, scale: 1.2, speed: 0.15 },
+      { x: 600, y: 40, scale: 1.0, speed: 0.25 }
+    ];
+
+    const townsfolk = [
+      { x: 30,  y: 310, coatColor: "#2563eb", coatDark: "#1d4ed8", skinColor: "#fca5a5", splashTimer: 0 },
+      { x: 120, y: 305, coatColor: "#16a34a", coatDark: "#15803d", skinColor: "#fde047", splashTimer: 15 },
+      { x: 220, y: 312, coatColor: "#dc2626", coatDark: "#b91c1c", skinColor: "#fca5a5", splashTimer: 30 },
+      { x: 330, y: 302, coatColor: "#9333ea", coatDark: "#7e22ce", skinColor: "#fed7aa", splashTimer: 45 },
+      { x: 450, y: 310, coatColor: "#0891b2", coatDark: "#0e7490", skinColor: "#fca5a5", splashTimer: 10 },
+      { x: 560, y: 305, coatColor: "#ca8a04", coatDark: "#a16207", skinColor: "#fde047", splashTimer: 25 },
+      { x: 670, y: 311, coatColor: "#2563eb", coatDark: "#1d4ed8", skinColor: "#fed7aa", splashTimer: 40 },
+      { x: 750, y: 304, coatColor: "#16a34a", coatDark: "#15803d", skinColor: "#fca5a5", splashTimer: 5 }
+    ];
+
+    let spawnTimerWater = null, spawnTimerStraw = null, spawnTimerSpeed = null, spawnTimerIce = null, spawnTimerFire = null;
+
+    // リアル＆きらびやかな藁（祝い藁）を描画する関数
+    function drawRealStrawBundle(ctx, x, y, width, height, isBig) {
+      ctx.save();
+      
+      const count = isBig ? 12 : 8;
+      const strandWidth = width / count;
+      
+      // 発光シャドウ
+      if (isBig) {
+        ctx.shadowColor = "#facc15";
+        ctx.shadowBlur = 12;
+      }
+      
+      for (let i = 0; i < count; i++) {
+        const sx = x + i * strandWidth;
+        const colorGrad = ctx.createLinearGradient(sx, y, sx, y + height);
+        colorGrad.addColorStop(0, "#fef08a");
+        colorGrad.addColorStop(0.4, "#eab308");
+        colorGrad.addColorStop(1, "#854d0e");
+        
+        ctx.fillStyle = colorGrad;
+        ctx.beginPath();
+        ctx.moveTo(sx, y + 2);
+        ctx.lineTo(sx + strandWidth, y);
+        ctx.lineTo(sx + strandWidth + (i % 2 === 0 ? 1 : -1), y + height);
+        ctx.lineTo(sx + (i % 2 === 0 ? -1 : 1), y + height);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(113, 63, 18, 0.6)";
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(sx + strandWidth / 2, y);
+        ctx.lineTo(sx + strandWidth / 2, y + height);
+        ctx.stroke();
+      }
+
+      // 締め紐（朱色）
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "#ef4444";
+      ctx.fillRect(x - 1, y + height * 0.3, width + 2, 3.5);
+      ctx.fillRect(x - 1, y + height * 0.68, width + 2, 3.5);
+
+      // 水引（結び目）
+      ctx.fillStyle = "#f87171";
+      ctx.beginPath();
+      ctx.arc(x + width / 2 - 4, y + height * 0.3, 3, 0, Math.PI * 2);
+      ctx.arc(x + width / 2 + 4, y + height * 0.3, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    function renderItemIcons() {
+      const cStraw = document.getElementById('icon-straw').getContext('2d');
+      cStraw.clearRect(0, 0, 22, 22);
+      drawRealStrawBundle(cStraw, 2, 2, 18, 18, false);
+
+      const cSpeed = document.getElementById('icon-speed').getContext('2d');
+      cSpeed.clearRect(0, 0, 22, 22); cSpeed.fillStyle = "#f97316"; cSpeed.beginPath(); cSpeed.arc(11, 11, 10, 0, Math.PI * 2); cSpeed.fill();
+      cSpeed.fillStyle = "#fff"; cSpeed.font = "bold 12px sans-serif"; cSpeed.textAlign = "center"; cSpeed.fillText("⚡", 11, 15);
+
+      const cIce = document.getElementById('icon-ice').getContext('2d');
+      cIce.clearRect(0, 0, 22, 22); cIce.fillStyle = "#c084fc"; cIce.beginPath(); cIce.moveTo(11, 1); cIce.lineTo(21, 11); cIce.lineTo(11, 21); cIce.lineTo(1, 11); cIce.closePath(); cIce.fill();
+      cIce.fillStyle = "#e879f9"; cIce.beginPath(); cIce.arc(11, 11, 4, 0, Math.PI * 2); cIce.fill();
+
+      const cFire = document.getElementById('icon-fire').getContext('2d');
+      cFire.clearRect(0, 0, 22, 22); cFire.fillStyle = "#ef4444"; cFire.beginPath(); cFire.moveTo(11, 1); cFire.quadraticCurveTo(21, 15, 11, 21); cFire.quadraticCurveTo(1, 15, 11, 1); cFire.fill();
+      cFire.fillStyle = "#f97316"; cFire.beginPath(); cFire.moveTo(11, 5); cFire.quadraticCurveTo(17, 16, 11, 19); cFire.quadraticCurveTo(5, 16, 11, 5); cFire.fill();
+      cFire.fillStyle = "#fef08a"; cFire.beginPath(); cFire.arc(11, 14, 3, 0, Math.PI * 2); cFire.fill();
+    }
+
+    function updateLivesDisplay() {
+      let heartsStr = "";
+      for (let i = 0; i < maxLives; i++) {
+        heartsStr += i < lives ? "❤️ " : "🖤 ";
+      }
+      livesText.innerText = heartsStr.trim();
+    }
+
+    function getHighScores(m) {
+      const data = localStorage.getItem('kasedori_scores_' + m);
+      return data ? JSON.parse(data) : [0, 0, 0, 0, 0];
+    }
+
+    function saveScore(m, newScore) {
+      let scores = getHighScores(m);
+      scores.push(newScore);
+      scores.sort((a, b) => b - a);
+      scores = scores.slice(0, 5);
+      localStorage.setItem('kasedori_scores_' + m, JSON.stringify(scores));
+    }
+
+    function updateRankingDisplay() {
+      const easyScores = getHighScores('easy');
+      const hardScores = getHighScores('hard');
+      document.getElementById('ranking-easy').innerHTML = easyScores.map(s => `<li>${s} pts</li>`).join('');
+      document.getElementById('ranking-hard').innerHTML = hardScores.map(s => `<li>${s} pts</li>`).join('');
+    }
+
+    function showModeSelect() {
+      gameStarted = false; isPaused = false; pauseOverlay.style.display = 'none';
+      stopBGM(); clearAllTimers(); updateRankingDisplay(); renderItemIcons();
+
+      messageTitle.innerText = "難易度を選んでね！"; messageTitle.style.color = "#fff";
+      messageDesc.innerText = "イージー: 水滴がゆっくりで避けやすい\nハード: 水滴が速く、お邪魔アイテム「火」が降る！";
+      messageDesc.style.display = "block";
+      titleInfoGroup.style.display = "flex"; kasedoriInfoBox.style.display = "none";
+      modeSelectGroup.style.display = "flex"; retryBtn.style.display = "none"; message.style.display = "flex";
+    }
+
+    function clearAllTimers() {
+      clearInterval(spawnTimerWater); clearInterval(spawnTimerStraw); clearInterval(spawnTimerSpeed);
+      clearInterval(spawnTimerIce); clearInterval(spawnTimerFire);
+    }
+
+    function startGame(selectedMode) {
+      initAudio(); mode = selectedMode; gameStarted = true; isPaused = false;
+      score = 0; lives = 3; gameOver = false; gameTimer = 0; hasReachedGoal = false;
+      waters = []; straws = []; speedItems = []; iceItems = []; fireItems = []; popups = []; particles = [];
+
+      player.x = 100; player.y = 310; player.vx = 0; player.vy = 0;
+      player.speedBoostTimer = 0; player.slowTimer = 0; player.invincibleTimer = 0; player.hitCooldown = 0;
+      player.speed = player.baseSpeed;
+
+      waterSpawnInterval = mode === 'easy' ? 600 : 350;
+      waterBaseSpeed = mode === 'easy' ? 2.8 : 4.2;
+
+      scoreText.innerText = `SCORE: 0`;
+      updateLivesDisplay();
+      statusText.innerText = ""; statusText.style.display = "none"; message.style.display = "none";
+
+      clearAllTimers();
+      spawnTimerWater = setInterval(spawnWater, waterSpawnInterval);
+      spawnTimerStraw = setInterval(spawnStraw, 700);
+      spawnTimerSpeed = setInterval(spawnSpeedItem, 8000);
+      spawnTimerIce = setInterval(spawnIceItem, 25000);
+      if (mode === 'hard') spawnTimerFire = setInterval(spawnFireItem, 3500);
+
+      startBGM();
+    }
+
+    function isWaterRushActive() {
+      const cycle = gameTimer % 3600;
+      return cycle >= 2700;
+    }
+
+    function spawnWater() {
+      if (gameOver || !gameStarted || isPaused) return;
+      const isWaterRush = isWaterRushActive();
+      const count = isWaterRush ? (mode === 'easy' ? 2 : 4) : 1;
+      for (let i = 0; i < count; i++) {
+        waters.push({ x: Math.random() * (canvas.width - 20), y: -25, size: 20, speed: (isWaterRush ? waterBaseSpeed + 1.5 : waterBaseSpeed) + Math.random() * 2 });
+      }
+    }
+
+    function spawnStraw() {
+      if (gameOver || !gameStarted || isPaused) return;
+      const isBig = Math.random() < 0.25;
+      straws.push({ x: Math.random() * (canvas.width - 40), y: -30, width: isBig ? 45 : 30, height: isBig ? 35 : 25, points: isBig ? 30 : 10, isBig: isBig, speed: 2 + Math.random() * 1.5 });
+    }
+
+    function spawnSpeedItem() {
+      if (gameOver || !gameStarted || isPaused) return;
+      speedItems.push({ x: Math.random() * (canvas.width - 25), y: -30, width: 26, height: 26, speed: 2.2 });
+    }
+
+    function spawnIceItem() {
+      if (gameOver || !gameStarted || isPaused) return;
+      iceItems.push({ x: Math.random() * (canvas.width - 28), y: -30, width: 28, height: 28, speed: 2.0 });
+    }
+
+    function spawnFireItem() {
+      if (gameOver || !gameStarted || isPaused) return;
+      fireItems.push({ x: Math.random() * (canvas.width - 26), y: -30, width: 26, height: 30, speed: 3.2 + Math.random() * 1.5 });
+    }
+
+    function createParticles(x, y, color, count = 10, speedMult = 1) {
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: x, y: y,
+          vx: (Math.random() - 0.5) * 7 * speedMult,
+          vy: (Math.random() - 0.5) * 7 * speedMult,
+          radius: Math.random() * 4 + 2,
+          color: color,
+          life: 30
+        });
+      }
+    }
+
+    function update() {
+      if (!gameStarted || isPaused) return;
+
+      // 雪のアニメーション
+      snowflakes.forEach(s => {
+        s.y += s.speedY;
+        s.x += s.speedX;
+        if (s.y > canvas.height) s.y = -10;
+        if (s.x > canvas.width) s.x = 0;
+        if (s.x < 0) s.x = canvas.width;
+      });
+
+      clouds.forEach(c => { c.x += c.speed; if (c.x > canvas.width + 60) c.x = -60; });
+
+      if (gameOver) return;
+
+      gameTimer++;
+      player.animFrame++;
+      townsfolk.forEach(p => { p.splashTimer = (p.splashTimer + 1) % 60; });
+
+      if (player.slowTimer > 0) player.slowTimer--;
+      if (player.speedBoostTimer > 0) player.speedBoostTimer--;
+      if (player.invincibleTimer > 0) player.invincibleTimer--;
+      if (player.hitCooldown > 0) player.hitCooldown--;
+
+      player.speed = player.slowTimer > 0 ? player.baseSpeed * 0.4 : (player.speedBoostTimer > 0 ? player.baseSpeed * 1.7 : player.baseSpeed);
+
+      let statusStr = "";
+      if (player.invincibleTimer > 0) statusStr += `★無敵! (${Math.ceil(player.invincibleTimer / 60)}s) `;
+      if (player.slowTimer > 0) statusStr += `🔥スピードダウン! (${Math.ceil(player.slowTimer / 60)}s) `;
+      else if (player.speedBoostTimer > 0) statusStr += `⚡SPEED UP! `;
+      if (isWaterRushActive()) statusStr += `⚠️水ラッシュ!`;
+      
+      statusText.innerText = statusStr;
+      statusText.style.display = statusStr !== "" ? "block" : "none";
+
+      if (keys['ArrowLeft'] || keys['KeyA']) player.vx = -player.speed;
+      else if (keys['ArrowRight'] || keys['KeyD']) player.vx = player.speed;
+      else player.vx = 0;
+
+      if ((keys['ArrowUp'] || keys['Space'] || keys['KeyW']) && player.isGrounded) {
+        player.vy = player.jumpPower; player.isGrounded = false; playSound('jump');
+        createParticles(player.x + player.width/2, player.y + player.height, "#cbd5e1", 8);
+      }
+
+      player.vy += player.gravity; player.x += player.vx; player.y += player.vy;
+      if (player.x < 0) player.x = 0; if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+      if (player.y + player.height >= 380) { player.y = 380 - player.height; player.vy = 0; player.isGrounded = true; }
+
+      // 水滴判定
+      for (let i = waters.length - 1; i >= 0; i--) {
+        const w = waters[i]; w.y += w.speed;
+        if (player.x < w.x + w.size && player.x + player.width > w.x && player.y < w.y + w.size && player.y + player.height > w.y) {
+          if (player.invincibleTimer > 0) {
+            createParticles(w.x, w.y, "#38bdf8", 12); waters.splice(i, 1); continue;
+          } else if (player.hitCooldown <= 0) {
+            lives--;
+            updateLivesDisplay();
+            createParticles(player.x + player.width/2, player.y + player.height/2, "#0284c7", 18, 1.5);
+            
+            if (lives <= 0) {
+              gameOver = true; stopBGM(); playSound('gameover'); saveScore(mode, score);
+              showEndMessage("水をかぶりすぎて力尽きた！", `最終スコア: ${score} pts\nお疲れ様でした！`, "#38bdf8");
+            } else {
+              playSound('splash');
+              player.hitCooldown = 120;
+              popups.push({ x: player.x + player.width/2, y: player.y - 15, text: "バッシャーン！冷たっ！", color: "#38bdf8", life: 35 });
+            }
+            waters.splice(i, 1); continue;
+          }
+        }
+        if (w.y > canvas.height) waters.splice(i, 1);
+      }
+
+      // わら
+      for (let i = straws.length - 1; i >= 0; i--) {
+        const s = straws[i]; s.y += s.speed;
+        if (player.x < s.x + s.width && player.x + player.width > s.x && player.y < s.y + s.height && player.y + player.height > s.y) {
+          score += s.points; scoreText.innerText = `SCORE: ${score}`; playSound(s.isBig ? 'bigItem' : 'item');
+          createParticles(s.x + s.width/2, s.y + s.height/2, s.isBig ? "#facc15" : "#eab308", 15);
+          popups.push({ x: player.x + player.width / 2, y: player.y - 15, text: s.isBig ? "「カッカッカー！」 (+30)" : "「カッカッカー！」", color: s.isBig ? "#facc15" : "#f59e0b", life: 35 });
+          if (score >= 500 && !hasReachedGoal) {
+            hasReachedGoal = true; popups.push({ x: canvas.width / 2, y: 150, text: "🎉 500pt達成！ハイスコアを目指せ！", color: "#22c55e", life: 90 });
+          }
+          straws.splice(i, 1); continue;
+        }
+        if (s.y > canvas.height) straws.splice(i, 1);
+      }
+
+      // スピード
+      for (let i = speedItems.length - 1; i >= 0; i--) {
+        const sp = speedItems[i]; sp.y += sp.speed;
+        if (player.x < sp.x + sp.width && player.x + player.width > sp.x && player.y < sp.y + sp.height && player.y + player.height > sp.y) {
+          player.speedBoostTimer = 300; player.slowTimer = 0; playSound('powerup');
+          createParticles(sp.x, sp.y, "#f97316", 15);
+          popups.push({ x: player.x + player.width/2, y: player.y - 15, text: "スピードUP!", color: "#f97316", life: 35 });
+          speedItems.splice(i, 1); continue;
+        }
+        if (sp.y > canvas.height) speedItems.splice(i, 1);
+      }
+
+      // 氷
+      for (let i = iceItems.length - 1; i >= 0; i--) {
+        const ice = iceItems[i]; ice.y += ice.speed;
+        if (player.x < ice.x + ice.width && player.x + player.width > ice.x && player.y < ice.y + ice.height && player.y + player.height > ice.y) {
+          player.invincibleTimer = 300; playSound('powerup');
+          createParticles(ice.x, ice.y, "#c084fc", 18);
+          popups.push({ x: player.x + player.width/2, y: player.y - 15, text: "無敵モード!", color: "#c084fc", life: 40 });
+          iceItems.splice(i, 1); continue;
+        }
+        if (ice.y > canvas.height) iceItems.splice(i, 1);
+      }
+
+      // 火
+      for (let i = fireItems.length - 1; i >= 0; i--) {
+        const f = fireItems[i]; f.y += f.speed;
+        if (player.x < f.x + f.width && player.x + player.width > f.x && player.y < f.y + f.height && player.y + player.height > f.y) {
+          if (player.invincibleTimer <= 0) {
+            player.slowTimer = 300; player.speedBoostTimer = 0; playSound('fire');
+            createParticles(f.x + f.width/2, f.y + f.height/2, "#ef4444", 18);
+            popups.push({ x: player.x + player.width/2, y: player.y - 15, text: "あっちっち！スピードDOWN", color: "#ef4444", life: 40 });
+          } else { createParticles(f.x, f.y, "#c084fc", 10); }
+          fireItems.splice(i, 1); continue;
+        }
+        if (f.y > canvas.height) fireItems.splice(i, 1);
+      }
+
+      for (let i = popups.length - 1; i >= 0; i--) { popups[i].y -= 1.2; popups[i].life--; if (popups[i].life <= 0) popups.splice(i, 1); }
+      for (let i = particles.length - 1; i >= 0; i--) { const p = particles[i]; p.x += p.vx; p.y += p.vy; p.life--; if (p.life <= 0) particles.splice(i, 1); }
+    }
+
+    function showEndMessage(title, desc, color) {
+      updateRankingDisplay(); messageTitle.innerText = title; messageTitle.style.color = color; messageDesc.innerText = desc;
+      kasedoriText.innerText = kasedoriFacts[Math.floor(Math.random() * kasedoriFacts.length)];
+      titleInfoGroup.style.display = "none"; kasedoriInfoBox.style.display = "block";
+      modeSelectGroup.style.display = "none"; retryBtn.style.display = "block"; message.style.display = "flex";
+    }
+
+    function draw() {
+      // グラデーション背景（夜の雪景色風）
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      bgGrad.addColorStop(0, "#080d1a"); bgGrad.addColorStop(0.5, "#131b2e"); bgGrad.addColorStop(1, "#1e293b");
+      ctx.fillStyle = bgGrad; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 月（夜の演出）
+      ctx.save();
+      ctx.shadowColor = "#fef08a";
+      ctx.shadowBlur = 20;
+      ctx.fillStyle = "#fef9c3";
+      ctx.beginPath();
+      ctx.arc(720, 60, 30, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // 雲
+      clouds.forEach(c => {
+        ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+        ctx.beginPath(); ctx.arc(c.x, c.y, 20 * c.scale, 0, Math.PI * 2); ctx.arc(c.x + 15 * c.scale, c.y - 10 * c.scale, 25 * c.scale, 0, Math.PI * 2); ctx.arc(c.x + 35 * c.scale, c.y, 20 * c.scale, 0, Math.PI * 2); ctx.fill();
+      });
+
+      // 遠景（上山城シルエット＆町並み）
+      ctx.fillStyle = "#0f172a";
+      // 城のシルエット
+      ctx.fillRect(360, 150, 80, 230);
+      ctx.fillRect(340, 180, 120, 200);
+      ctx.beginPath();
+      ctx.moveTo(400, 110); ctx.lineTo(350, 150); ctx.lineTo(450, 150); ctx.closePath(); ctx.fill();
+      // 屋根の雪表現
+      ctx.fillStyle = "rgba(241, 245, 249, 0.85)";
+      ctx.fillRect(335, 178, 130, 6);
+      ctx.fillRect(355, 148, 90, 6);
+
+      // 観客
+      townsfolk.forEach(p => {
+        const isSplashing = p.splashTimer > 40; ctx.save();
+        ctx.fillStyle = "rgba(0,0,0,0.3)"; ctx.beginPath(); ctx.ellipse(p.x + 12, 380, 12, 4, 0, 0, Math.PI * 2); ctx.fill();
+        const coatGrad = ctx.createLinearGradient(p.x, p.y + 20, p.x + 24, p.y + 60); coatGrad.addColorStop(0, p.coatColor); coatGrad.addColorStop(1, p.coatDark);
+        ctx.fillStyle = coatGrad; ctx.beginPath(); ctx.roundRect(p.x, p.y + 24, 24, 42, [6, 6, 2, 2]); ctx.fill();
+        ctx.fillStyle = "#0f172a"; ctx.fillRect(p.x + 9, p.y + 24, 6, 20); ctx.fillRect(p.x + 2, p.y + 44, 20, 5);
+        ctx.fillStyle = p.skinColor; ctx.beginPath(); ctx.arc(p.x + 12, p.y + 12, 10, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#f1f5f9"; ctx.fillRect(p.x + 2, p.y + 5, 20, 4);
+        ctx.fillStyle = "#78350f";
+        if (isSplashing) {
+          ctx.beginPath(); ctx.roundRect(p.x - 14, p.y + 16, 16, 18, 4); ctx.fill();
+          ctx.fillStyle = "#38bdf8"; ctx.beginPath(); ctx.arc(p.x - 20, p.y + 12, 8, 0, Math.PI * 2); ctx.arc(p.x - 28, p.y + 8, 5, 0, Math.PI * 2); ctx.fill();
+        } else {
+          ctx.beginPath(); ctx.roundRect(p.x - 6, p.y + 30, 14, 16, 3); ctx.fill();
+          ctx.fillStyle = "#38bdf8"; ctx.fillRect(p.x - 4, p.y + 32, 10, 3);
+        }
+        ctx.restore();
+      });
+
+      // 雪降りエフェクト
+      ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+      snowflakes.forEach(s => {
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 地面（積雪）
+      const groundGrad = ctx.createLinearGradient(0, 380, 0, canvas.height); groundGrad.addColorStop(0, "#f8fafc"); groundGrad.addColorStop(1, "#94a3b8");
+      ctx.fillStyle = groundGrad; ctx.fillRect(0, 380, canvas.width, 70); ctx.fillStyle = "#cbd5e1"; ctx.fillRect(0, 380, canvas.width, 5);
+
+      // わら描画
+      straws.forEach(s => {
+        drawRealStrawBundle(ctx, s.x, s.y, s.width, s.height, s.isBig);
+      });
+
+      // スピード
+      speedItems.forEach(sp => {
+        ctx.save(); ctx.shadowColor = "#f97316"; ctx.shadowBlur = 12; ctx.fillStyle = "#f97316";
+        ctx.beginPath(); ctx.arc(sp.x + sp.width/2, sp.y + sp.height/2, sp.width/2, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#fff"; ctx.font = "bold 14px sans-serif"; ctx.textAlign = "center"; ctx.fillText("⚡", sp.x + sp.width/2, sp.y + sp.height/2 + 5);
+        ctx.restore();
+      });
+
+      // 氷
+      iceItems.forEach(ice => {
+        ctx.save(); ctx.shadowColor = "#c084fc"; ctx.shadowBlur = 15; const cx = ice.x + ice.width/2, cy = ice.y + ice.height/2;
+        ctx.fillStyle = "#c084fc"; ctx.beginPath(); ctx.moveTo(cx, ice.y); ctx.lineTo(ice.x + ice.width, cy); ctx.lineTo(cx, ice.y + ice.height); ctx.lineTo(ice.x, cy); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = "#e879f9"; ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      });
+
+      // 火
+      fireItems.forEach(f => {
+        ctx.save(); const cx = f.x + f.width / 2, cy = f.y + f.height / 2; ctx.shadowColor = "#ef4444"; ctx.shadowBlur = 15;
+        ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.moveTo(cx, f.y); ctx.quadraticCurveTo(f.x + f.width, f.y + f.height * 0.7, cx, f.y + f.height); ctx.quadraticCurveTo(f.x, f.y + f.height * 0.7, cx, f.y); ctx.fill();
+        ctx.fillStyle = "#f97316"; ctx.beginPath(); ctx.moveTo(cx, f.y + 6); ctx.quadraticCurveTo(f.x + f.width - 4, f.y + f.height * 0.8, cx, f.y + f.height - 3); ctx.quadraticCurveTo(f.x + 4, f.y + f.height * 0.8, cx, f.y + 6); ctx.fill();
+        ctx.fillStyle = "#fef08a"; ctx.beginPath(); ctx.arc(cx, cy + 4, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      });
+
+      // 水滴（リアルな立体感と光沢）
+      waters.forEach(w => {
+        const cx = w.x + w.size / 2, cy = w.y + w.size / 2, radius = w.size / 2;
+        ctx.save();
+        ctx.shadowColor = "#38bdf8"; ctx.shadowBlur = 10;
+        const grad = ctx.createRadialGradient(cx - radius * 0.3, cy - radius * 0.3, radius * 0.1, cx, cy, radius);
+        grad.addColorStop(0, "#f0f9ff"); grad.addColorStop(0.4, "#38bdf8"); grad.addColorStop(1, "#0284c7");
+        ctx.fillStyle = grad; ctx.strokeStyle = "#0369a1"; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "rgba(255, 255, 255, 0.95)"; ctx.beginPath(); ctx.arc(cx - radius * 0.35, cy - radius * 0.35, radius * 0.28, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      });
+
+      // 加勢鳥（アニメーション＆グラフィック大幅リファイン）
+      if (gameStarted) {
+        const px = player.x, py = player.y, pw = player.width, ph = player.height;
+
+        if (player.hitCooldown > 0 && Math.floor(player.hitCooldown / 8) % 2 === 0) {
+          // 被弾時の点滅処理
+        } else {
+          ctx.save();
+
+          // 走る・跳ぶ動作に伴うアニメーション計算
+          const tilt = player.vx !== 0 ? (player.vx > 0 ? 0.08 : -0.08) : 0;
+          const bounceY = player.isGrounded && player.vx !== 0 ? Math.sin(player.animFrame * 0.3) * 3 : 0;
+
+          ctx.translate(px + pw / 2, py + ph / 2 + bounceY);
+          ctx.rotate(tilt);
+          ctx.translate(-(px + pw / 2), -(py + ph / 2));
+
+          // 影
+          ctx.fillStyle = "rgba(0,0,0,0.3)";
+          ctx.beginPath();
+          ctx.ellipse(px + pw/2, 380 - (py + bounceY), pw/2, 6, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          // オーラ演出
+          if (player.invincibleTimer > 0) {
+            ctx.strokeStyle = "#c084fc"; ctx.lineWidth = 4; ctx.shadowColor = "#c084fc"; ctx.shadowBlur = 20;
+            ctx.beginPath(); ctx.arc(px + pw / 2, py + ph / 2, pw * 0.85, 0, Math.PI * 2); ctx.stroke();
+          }
+
+          if (player.speedBoostTimer > 0) {
+            ctx.fillStyle = "rgba(249, 115, 22, 0.35)"; ctx.beginPath(); ctx.arc(px + pw / 2, py + ph / 2, pw * 0.8, 0, Math.PI * 2); ctx.fill();
+          }
+          if (player.slowTimer > 0) {
+            ctx.fillStyle = "rgba(239, 68, 68, 0.4)"; ctx.beginPath(); ctx.arc(px + pw / 2, py + ph / 2, pw * 0.8, 0, Math.PI * 2); ctx.fill();
+          }
+
+          // 足
+          ctx.fillStyle = "#fed7aa";
+          ctx.fillRect(px + 8, py + ph - 10, 8, 10);
+          ctx.fillRect(px + pw - 16, py + ph - 10, 8, 10);
+
+          // ケンダイ（藁衣装）ベース
+          const strawGrad = ctx.createLinearGradient(px, py, px + pw, py + ph);
+          strawGrad.addColorStop(0, "#fef08a"); strawGrad.addColorStop(0.3, "#eab308"); strawGrad.addColorStop(0.8, "#ca8a04"); strawGrad.addColorStop(1, "#713f12");
+          ctx.fillStyle = strawGrad;
+          ctx.beginPath();
+          ctx.moveTo(px + pw / 2, py + 4);
+          ctx.quadraticCurveTo(px + pw + 10, py + ph * 0.7, px + pw + 4, py + ph - 8);
+          ctx.lineTo(px - 4, py + ph - 8);
+          ctx.quadraticCurveTo(px - 10, py + ph * 0.7, px + pw / 2, py + 4);
+          ctx.fill();
+
+          // 藁の束感とディテール（縦ストライプ）
+          ctx.strokeStyle = "rgba(113, 63, 18, 0.6)"; ctx.lineWidth = 1.5;
+          for (let i = 0; i <= 11; i++) {
+            ctx.beginPath(); ctx.moveTo(px + pw / 2, py + 6); ctx.lineTo(px - 6 + i * ((pw + 12) / 11), py + ph - 8); ctx.stroke();
+          }
+
+          // 締め縄（横ヒモ）
+          ctx.strokeStyle = "#78350f"; ctx.lineWidth = 3;
+          for (let i = 1; i <= 3; i++) {
+            ctx.beginPath(); ctx.ellipse(px + pw / 2, py + 12 + i * 14, (12 + i * 10) / 2, 3.5, 0, 0, Math.PI); ctx.stroke();
+          }
+
+          // 頂点飾り
+          ctx.fillStyle = "#78350f"; ctx.fillRect(px + pw / 2 - 5, py + 2, 10, 5);
+          ctx.fillStyle = "#38bdf8"; ctx.fillRect(px + pw / 2 + 2, py - 3, 4, 8);
+
+          // 顔ののぞき穴＆手ぬぐい
+          ctx.fillStyle = "#0f172a"; ctx.beginPath(); ctx.ellipse(px + pw / 2, py + 24, 12, 8, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = "#f8fafc"; ctx.fillRect(px + pw / 2 - 10, py + 17, 20, 6); // 鉢巻手ぬぐい
+          ctx.fillStyle = "#fed7aa"; ctx.fillRect(px + pw / 2 - 9, py + 23, 18, 7); // 肌
+          ctx.fillStyle = "#0f172a"; ctx.fillRect(px + pw / 2 - 6, py + 24, 3, 3); ctx.fillRect(px + pw / 2 + 3, py + 24, 3, 3); // つぶらな瞳
+          ctx.fillStyle = "#dc2626"; ctx.fillRect(px + pw / 2 - 3, py + 28, 6, 2); // 口
+
+          ctx.restore();
+        }
+      }
+
+      // パーティクル描画
+      particles.forEach(p => { ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); });
+      
+      // ポップアップテキスト
+      popups.forEach(p => {
+        ctx.save(); ctx.font = "900 22px 'M PLUS Rounded 1c', sans-serif"; ctx.fillStyle = p.color; ctx.strokeStyle = "#fff"; ctx.lineWidth = 4; ctx.textAlign = "center";
+        ctx.strokeText(p.text, p.x, p.y); ctx.fillText(p.text, p.x, p.y); ctx.restore();
+      });
+    }
+
+    function loop() { update(); draw(); requestAnimationFrame(loop); }
+
+    showModeSelect();
+    loop();
+  </script>
+</body>
+</html>
